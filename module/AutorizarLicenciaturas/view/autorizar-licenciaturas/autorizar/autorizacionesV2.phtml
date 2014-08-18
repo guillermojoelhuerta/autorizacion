@@ -1,0 +1,93 @@
+<?php
+
+if(empty($autorizaciones))
+{
+?>								
+	<div>No existen autorizaciones</div>	
+<?php 		
+								
+}else{		
+?>																						
+	<div class="mensaje" id="mensaje"></div>   													
+	<table class="table table-striped table-condensed">																								
+		<th>Id</th>
+		<th>Entidad</th>
+		<th>Escuela</th>
+		<th>Licenciatura</th>
+		<th>Especialidad</th>
+		<th>Autorización</th>
+		<th>Periodo</th>					
+		<!--<th>Oficio</th>-->
+		<th>Acciones</th>
+							
+<?php
+																
+	foreach($autorizaciones as $key => $value) 
+	{  				                                                                                                                             		                                   		                   
+?>														
+        <tr>																																																				
+        	<!--<td><?php echo $value["id"]; ?></td>-->
+        	<td><?php echo $key+1+$offset; ?></td>															
+        	<td><?php echo $value["entidad"]; ?></td>																					
+        	<td><a href="<?php echo $value["id"] ?>" id="mostrar_autorizacion"><?php echo $value["escuela"]; ?></a></td>
+        	<td><?php echo $value["licenciatura"]; ?></td>																			
+        	<td><?php echo $value["especialidad"]; ?></td>				
+        	<td><?php echo $value["autorizar"]; ?></td>											
+        	<td><?php echo $value["periodo1"]; ?> - <?php echo $value["periodo2"]; ?></td>				
+        	<!--<td><?php echo $value["oficio"]; ?></td>-->														
+        	<td>		
+        		<a href="<?php echo $this->url.'/AutorizarLicenciaturas/Autorizar/updateForm/'.$value["id"] ?>" >
+        			<span class="glyphicon glyphicon-pencil"></span>
+        		</a>															
+        		<a href="<?php echo $value["id"] ?>" rel="<?php echo $key+1+$offset; ?>" id="eliminar_autorizacion">
+        			<span class="glyphicon glyphicon-remove"></span>
+        		</a>								
+        	</td>																																																		
+        </tr>									
+<?php                                                                                                                                                                                                                          
+    }						
+?>				
+
+		<tr>														
+			<td colspan="9" align="center">				
+			<div id="paginacion">
+				<a href="<?php echo $enlaces["anterior_pag"]; ?>" class="<?php echo $enlaces["class_ant"]; ?>">
+				Anterior
+				</a> 											
+				Página actual:				   					
+<?php
+															
+			for($i=1; $i<=$paginas_totales; $i++)
+			{           					
+			    if($i==$pagina){ 	 							
+?>							
+			       	<span><?php echo $i; ?></span> 
+
+<?php  								
+			    }else if(($pagina-1)==$i || ($pagina+1)==$i){          
+
+?>																											
+			       	<a href="<?php echo $i; ?>" class="mihref"><?php echo $i; ?></a>
+
+<?php	    					     
+			    }  											                			   		                                                           
+			}  
+
+					
+
+
+?>																																		
+			<a href="<?php echo $enlaces["siguiente_pag"]; ?>" class="<?php echo $enlaces["class_sig"]; ?>"> 
+				Siguiente 
+			</a>											
+			<div id="autorizaciones_totales"> 					
+				Autorizaciones totales: <?php echo $autorizaciones_totales; ?>
+			</div>												
+			</td>				
+		</tr>						
+	</table>														
+<?php    		                                  
+	
+}
+
+?>

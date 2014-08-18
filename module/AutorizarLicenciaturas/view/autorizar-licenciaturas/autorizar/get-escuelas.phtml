@@ -1,0 +1,8 @@
+<option value="">Seleccione</option>		
+<?php 				
+foreach ($getEscuelas as $key => $value) {
+?>									
+	<option value="<?php echo $value["id"]; ?>"><?php echo $value["escuela"]; ?></option>
+<?php          
+}  		
+?>

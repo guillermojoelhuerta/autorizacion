@@ -1,0 +1,330 @@
+<style>                                                              
+</style> 
+                                            
+<?php if(count($flashMessages)) : ?>
+    <?php foreach ($flashMessages as $msg) : ?>
+    <h4><?php echo $msg; ?></h4>							
+    <?php endforeach; ?>										
+<?php endif; ?> 
+
+<?php
+    $form = $this->form;                      
+    $form->prepare();                              
+
+    $formLabel = $this->plugin('formLabel');
+    //echo $this->form()->openTag($form);
+?>
+<p>                                                                                          
+<div class="row">         
+    <div class="col-xs-4">                                                                               
+        <?php                                      
+            $buscar = $form->get('buscar');                                                                   
+            echo $this->formInput($buscar); 
+        ?>                  
+    </div>                                                                                                         
+</div>
+</p>                                                                                                                
+<?php //echo $this->form()->closeTag(); ?>                      
+<div class="row">                                        
+    <div class="col-xs-3">  
+    		<?php 		
+    	    $entidad = $form->get('id_entidad');		                            
+            echo $formLabel->openTag() . $entidad->getLabel();
+            echo $formLabel->closeTag();									
+            echo $this->formSelect($entidad);		
+            //echo $this->formElementErrors($entidad);		
+    		?>
+    </div>                                              	                             			
+    <div class="col-xs-3">  
+    		<?php 	 															
+    	    $escuela = $form->get('id_escuela');		                            
+            echo $formLabel->openTag() . $escuela->getLabel();
+            echo $formLabel->closeTag();									
+            echo $this->formSelect($escuela);		
+            //echo $this->formElementErrors($escuela);		
+    		?>																					
+    </div>    
+    <div class="col-xs-3">  
+            <?php                                                                                       
+            $licenciatura = $form->get('id_licenciatura');                                  
+            echo $formLabel->openTag() . $licenciatura->getLabel();
+            echo $formLabel->closeTag();                                                                                    
+            echo $this->formSelect($licenciatura);          
+            //echo $this->formElementErrors($licenciatura);       
+            ?>                                                                  
+    </div>                                    
+    <div class="col-xs-3">       
+            <?php                                                                                                       
+            $especialidad = $form->get('id_especialidad');                                  
+            echo $formLabel->openTag() . $especialidad->getLabel();
+            echo $formLabel->closeTag();                                                                                                     
+            echo $this->formSelect($especialidad);      
+            //echo $this->formElementErrors($especialidad);       
+            ?>                                                                  
+    </div>                                                     
+</div>                                                                                                                                  
+<div id="autorizaciones" class="voffset3"></div>	                    						   
+<script>                                   
+                                                                                                                                                                                         
+var autorizacion = {
+
+        ready:function()
+        {                                                                                                                        
+            // $(".group1").colorbox({rel:'group1'});        
+            autorizacion.url = '<?php echo $this->url; ?>/AutorizarLicenciaturas/';                                                      
+            $("#id_entidad").on("change",autorizacion.getFiltrosEntidad);                                                       
+            $("#id_escuela").on("change",autorizacion.getFiltrosEscuela);                               
+            $("#id_licenciatura").on("change",autorizacion.getFiltrosLicenciatura);
+            $("#id_especialidad").on("change",autorizacion.getFiltrosEspecialidad);
+            $("#autorizaciones").on("click","#paginacion a",autorizacion.paginacion);
+            $("#autorizaciones").on("click","#mostrar_autorizacion",autorizacion.getAutorizacion);      
+            $("#autorizaciones").on("click","#eliminar_autorizacion",autorizacion.eliminarAutorizacion);
+            $("#buscar").on("keyup",autorizacion.buscarAutorizacion);
+        },                                                                                                                                                                                                                 
+
+        eliminarAutorizacion:function(e)
+        {
+            e.preventDefault(); 
+            var me = $(this);                                         
+
+            if(confirm("Estás seguro de eliminar la autorización "+ me.attr("rel") +" ??")) {
+                                                                                                                                                                           
+                var url  = autorizacion.url+'Autorizar/eliminarAutorizacion';                                
+                var data = "id="+me.attr("href");                                     
+                                                                                                                                                                                                                                                                   
+                $.ajax({                                                        
+                    url : url,                  
+                    method:'post',
+                    type:'json',                                                                                        
+                    data:data,                                                                                       
+                    success : function(data) {                      
+                        $(me).parents("tr").remove();
+                        $("#mensaje").html(data);    
+                        setTimeout(function(){                                
+                            $("#mensaje").empty();    
+                        },3000);                                                                                                        
+                        //console.log($(me).parents("tr"));
+                    },                                                                                                                    
+                    error : function(jqXHR, status, error) {
+                       alert('Disculpe, existió un problema');
+                    },
+                    complete : function(jqXHR, status) {
+                       //alert('Petición realizada');
+                    }                                               
+                });                                                         
+            }       
+        },                                                                                                                                                   
+        getAutorizacion:function(e)
+        {                                                                  
+            e.preventDefault();                                                   
+            var url  = autorizacion.url+'Autorizar/getAutorizacion';                                
+            var data = "id="+$(this).attr("href");                             
+                                                                                                                                       
+            $.ajax({                                                        
+                url : url,                  
+                method:'post',
+                type:'json',                                                                                 
+                data:data,                                                                
+                success : function(data) {                      
+                    $.colorbox({html:data, width:"50%"});
+                },                                                                                                                                
+                error : function(jqXHR, status, error) {
+                   alert('Disculpe, existió un problema');
+                },
+                complete : function(jqXHR, status) {
+                   //alert('Petición realizada');
+                }                                                        
+            });         
+        },                                                           
+
+        paginacion:function(e)
+        {                                                                              
+            e.preventDefault();                         
+            var page = $(this).attr("href"); 
+            
+            var id_entidad  = $("#id_entidad").val(),
+            id_escuela      = $("#id_escuela").val(),
+            id_licenciatura = $("#id_licenciatura").val(),
+            id_especialidad = $("#id_especialidad").val();
+                                                                              
+            
+            if(id_entidad && id_escuela=="" && id_licenciatura=="" && id_especialidad==""){
+                  autorizacion.getFiltrosEntidad(e,page); 
+            }else 
+            if(id_entidad && id_escuela && id_licenciatura=="" && id_especialidad==""){
+                  autorizacion.getFiltrosEscuela(e,page); 
+            }else
+            if(id_entidad && id_escuela && id_licenciatura && id_especialidad==""){
+                  autorizacion.getFiltrosLicenciatura(e,page); 
+            }else       
+            if(id_entidad && id_escuela && id_licenciatura && id_especialidad){
+                  autorizacion.getFiltrosEspecialidad(e,page);          
+            }else{                                                                                                                                                              
+                  autorizacion.buscarAutorizacion(e,page); 
+            }                                                                                                                                                                                     
+        },                    
+
+        buscarAutorizacion:function(e, page="1")
+        {                                                                       
+            var $buscar = $("#buscar");                                  
+            if($buscar.val().length>3)
+            {                                                                                                       
+                var select = new Array("id_escuela","id_licenciatura","id_especialidad");    
+                autorizacion.desactivarSelect(select);
+                $("#id_entidad").val("");     
+                                                                                                                                                                                 
+                var url  = autorizacion.url+'Autorizar/buscarAutorizacion';                                
+                var data = "buscar="+$buscar.val()+"&page="+page; 
+
+                $.ajax({                                                        
+                    url : url,                  
+                    method:'post',
+                    type:'json',                                                                                        
+                    data:data,                                                                                                         
+                    success : function(data) {                      
+                        $("#autorizaciones").html(data.autorizaciones.html); 
+                    },                                                                                                                                
+                    error : function(jqXHR, status, error) {
+                       alert('Disculpe, existió un problema');
+                    },
+                    complete : function(jqXHR, status) {        
+                       //alert('Petición realizada');
+                    }                                               
+                });      
+            }                  
+        },                                          
+
+        desactivarSelect:function(array)
+        {                                                                                                                                
+            var cont = array.length-1,       
+                $select ='';  
+
+            for(var i=0;i<=cont;i++){                                                            
+                $select = $("#"+array[i]);      
+                if($select.val() || $select.attr("disabled")!="undefined"){
+                    $("#"+array[i]).val("")                    
+                                   .attr("disabled",true);                          
+                }                                                                                                                         
+            }                                                                                              
+        },                  
+
+        getFiltrosEntidad:function(e, page="1")
+        {                                      
+            var $id_entidad = $("#id_entidad");
+            var select = new Array("id_escuela","id_licenciatura","id_especialidad");                                   
+                                                                                     
+            if(!$id_entidad.val()){                                                              
+                autorizacion.desactivarSelect(select);                                        
+                return null;                                                                 
+            }else{                          
+                select = select.splice(1,2);                                                        
+                autorizacion.desactivarSelect(select);                                                    
+            }                                                            
+                                            
+            var url  = autorizacion.url+'Autorizar/getFiltrosEntidad';                                
+            var data = "id_entidad="+$id_entidad.val()+"&page="+page; 
+
+            $.ajax({                                                        
+                url : url,                  
+                method:'post',
+                type:'json',                                                                                 
+                data:data,                                                                
+                success : function(data) {                      
+                    $("#id_escuela").attr("disabled",false)        
+                                    .html(data.filtro_autorizaciones.html); 
+                    $("#autorizaciones").html(data.autorizaciones.html); 
+                },                                                                                                                                                                                                           
+                error : function(jqXHR, status, error) {
+                   alert('Disculpe, existió un problema');
+                },
+                complete : function(jqXHR, status) {
+                   //alert('Petición realizada');
+                }                                          
+            });                     
+        },                                                      
+
+        getFiltrosEscuela:function(e, page="1")
+        {                                                                                                                                     var $id_escuela = $("#id_escuela");                                            
+            var select = new Array("id_licenciatura","id_especialidad"); 
+
+            if(!$id_escuela.val()){                                         
+                autorizacion.desactivarSelect(select);                                        
+                return null;                                
+            }else{                                                           
+                select = select.splice(1,1);                               
+                autorizacion.desactivarSelect(select);                                                    
+            }                                                                                                                                                                                                              
+            var url  = autorizacion.url+'Autorizar/getFiltrosEscuela';                                        
+            var data = "id_entidad="+$("#id_entidad").val()+"&id_escuela="+$id_escuela.val()+"&page="+page; 
+                                                                                                                                                                                                                                                   
+            $.ajax({                                                                
+                url : url,                  
+                method:'post',
+                type:'json',                                                                                 
+                data:data,                                                                   
+                success : function(data) {                           
+                    $("#id_licenciatura").attr("disabled",false)
+                                         .html(data.filtro_autorizaciones.html); 
+                    $("#autorizaciones").html(data.autorizaciones.html); 
+                },                                                                                                                                                                                                       
+                error : function(jqXHR, status, error) {
+                   alert('Disculpe, existió un problema');
+                },
+                complete : function(jqXHR, status) {
+                   //alert('Petición realizada');
+                }                                  
+            });                     
+        },                                                                   
+
+        getFiltrosLicenciatura:function(e, page="1")
+        {                                                                                                                                                                                                                                                       
+            var url  = autorizacion.url+'Autorizar/getFiltrosLicenciatura';                                
+            var data = "id_entidad="+$("#id_entidad").val()+"&id_escuela="+$("#id_escuela").val()+"&id_licenciatura="+$("#id_licenciatura").val()+"&page="+page;                      
+                                                                                                                                                                                                                                                                         
+            $.ajax({                                                                            
+                url : url,                  
+                method:'post',
+                type:'json',                                                                                 
+                data:data,                                                                  
+                success : function(data) {                  
+                    $("#id_especialidad").attr("disabled",false)                
+                                         .html(data.filtro_autorizaciones.html); 
+                    $("#autorizaciones").html(data.autorizaciones.html); 
+                },                                                                                                                                                                                                                      
+                error : function(jqXHR, status, error) {
+                   alert('Disculpe, existió un problema');
+                },
+                complete : function(jqXHR, status) {
+                   //alert('Petición realizada');
+                }                                                      
+            });                                  
+        },           
+
+        getFiltrosEspecialidad:function(e, page="1")
+        {                                                                                                                                                                                                                                                                                                                
+            var url  = autorizacion.url+'Autorizar/getFiltrosEspecialidad';                                
+            var data = "id_entidad="+$("#id_entidad").val()+"&id_escuela="+$("#id_escuela").val()+"&id_licenciatura="+$("#id_licenciatura").val()+"&id_especialidad="+$("#id_especialidad").val()+"&page="+page; 
+                                                                                                                                                                                                                                                                                     
+            $.ajax({                                                                    
+                url : url,                  
+                method:'post',
+                type:'json',                                                                                 
+                data:data,                                                           
+                success : function(data) {   
+
+                    $("#autorizaciones").attr("disabled",false)
+                                        .html(data.autorizaciones.html); 
+                },                                                                                                                                                                                           
+                error : function(jqXHR, status, error) {
+                   alert('Disculpe, existió un problema');
+                },
+                complete : function(jqXHR, status) {
+                   //alert('Petición realizada');
+                }                           
+            });                     
+        }                                                             
+
+    }                                                                                                    
+    $(document).ready(autorizacion.ready);
+    //$(document).on("ready",autorizacion.ready);    
+</script>

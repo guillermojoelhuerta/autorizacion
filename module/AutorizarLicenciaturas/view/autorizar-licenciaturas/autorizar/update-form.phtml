@@ -1,0 +1,260 @@
+<style>
+.form select{
+	width:150px;
+}	
+					
+.fila1{	
+	margin-top:40px;										
+	margin-bottom:40px;
+	display: block;
+	/*border:1px solid red;	*/
+}																																	
+																						
+.fila1 .form_element{
+	display: inline-block;																					
+	width: 33%;																														
+	/*border:1px solid;	*/					
+}	
+		
+.fila1 .form_element2{
+	display: inline-block;																					
+	width: 55%;																														
+	/*border:1px solid;	*/									
+}																									
+																
+.fila1 .btn_enviar{
+	text-align: center;				
+}	
+
+.fila1 label{						
+	width: 100px;				
+}
+															
+</style>	
+
+<?php if(count($flashMessages)) : ?>
+    <?php foreach ($flashMessages as $msg) : ?>
+    <h4><?php echo $msg; ?></h4>							
+    <?php endforeach; ?>										
+<?php endif; ?> 
+									
+<div class="form">						
+	<?php 		
+	$form = $this->form;   		       		  
+    $form->prepare();                                      
+    /*$form->setAttributes(array(						
+        'action'=>$this->url.'/AutorizarLicenciaturas/Autorizar/form',
+        'method'=>'post'                
+    ));*/													
+
+    $formLabel = $this->plugin('formLabel');
+    echo $this->form()->openTag($form);
+
+   	$id = $form->get('id');					                            								
+	echo $this->formInput($id);				
+	?>															
+	<div class="fila1">			
+		<div class="form_element">
+			<?php 														
+		    $entidad = $form->get('id_entidad');		                            
+	        echo $formLabel->openTag() . $entidad->getLabel();
+	        echo $formLabel->closeTag();									
+	        echo $this->formSelect($entidad);		
+	        echo $this->formElementErrors($entidad);		
+			?>
+		</div>		
+		<div class="form_element">
+			<?php 														
+		    $escuela = $form->get('id_escuela');		                            
+	        echo $formLabel->openTag() . $escuela->getLabel();
+	        echo $formLabel->closeTag();									
+	        echo $this->formSelect($escuela);		
+	        echo $this->formElementErrors($escuela);		
+			?>															
+		</div>												
+		<div class="form_element">
+			<?php 																						
+		    $licenciatura = $form->get('id_licenciatura');		                            
+	        echo $formLabel->openTag() . $licenciatura->getLabel();
+	        echo $formLabel->closeTag();																					
+	        echo $this->formSelect($licenciatura);			
+	        echo $this->formElementErrors($licenciatura);		
+			?>																	
+		</div>			
+	</div>
+	<div class="fila1">									
+		<div class="form_element">
+			<?php 																						
+		    $especialidad = $form->get('id_especialidad');		                            
+	        echo $formLabel->openTag() . $especialidad->getLabel();
+	        echo $formLabel->closeTag();																										
+	        echo $this->formSelect($especialidad);		
+	        echo $this->formElementErrors($especialidad);		
+			?>																	
+		</div>									
+		<div class="form_element">
+			<?php       
+	        $autorizar = $form->get('autorizar');
+	        echo $formLabel->openTag().$autorizar->getLabel();
+	        echo $formLabel->closeTag();				
+	        echo $this->formCheckbox($autorizar);
+	        echo $this->formElementErrors($autorizar);
+	        ?>													    					
+		</div>					
+    </div>						
+    <div class="fila1">																				
+	    <div class="form_element2">
+	        <?php                      
+	        $periodo1 = $form->get('periodo1');		                            
+	        echo $formLabel->openTag() . $periodo1->getLabel();
+	        echo $formLabel->closeTag();
+	        ?>
+	        Desde							
+	        <?php									
+	        echo $this->formSelect($periodo1);						                    
+	        ?> 		  		    										   																			
+	    	Hasta			
+	        <?php  												     							               
+	        $periodo2 = $form->get('periodo2');		                            									
+	        echo $this->formSelect($periodo2);	
+	        echo $this->formElementErrors($periodo1);										
+	        echo $this->formElementErrors($periodo2);					                    
+	        ?>      		    																
+	    </div>
+	    <div class="form_element">
+	        <?php             							         		
+	        $oficio = $form->get('oficio');			
+	        echo $formLabel->openTag().$oficio->getLabel('label');
+	       	echo $formLabel->closeTag(); 									
+	       	echo $this->formInput($oficio);			                   
+	        ?>  		        
+	    </div>						 
+    </div>	
+    <div class="fila1">											
+	    <div class="btn_enviar">
+	    	<?php
+	    	$submit = $form->get('enviar');
+	    	echo $this->formSubmit($submit);				
+	    	?>				
+	    </div>				
+    </div> 
+</div>	
+<script>
+	var autorizacion = {
+
+		ready:function()
+		{																																												
+			autorizacion.url = '<?php echo $this->url; ?>';				 
+			//$("#id_entidad").on("change",autorizacion.getEscuelas);
+			$("#id_escuela").on("change",autorizacion.getLicenciaturas);
+			$("#id_licenciatura").on("change",autorizacion.getEspecialidad);
+			$("#periodo1").on("change",autorizacion.getPeriodos);
+		},														
+
+		getEscuelas:function()
+		{	
+
+			$("#id_escuela").attr("disabled",false); 																																																																	
+			var id_licenciatura = $("#id_licenciatura").val();
+			if(id_licenciatura!=0 || id_licenciatura!=""){							
+				//$("#id_licenciatura").val("0");	
+				$("#id_licenciatura").val("");
+			}																																																		
+			var url  = autorizacion.url+'/AutorizarLicenciaturas/Autorizar/getEscuelas';								
+			var data = "id_entidad="+$(this).val();	
+																			
+			$.ajax({														
+		        url : url,					
+		        method:'post',
+		        type:'html',																	
+		    	data:data,										
+		        success : function(data) {
+		           //alert('Petición realizada satisfactoriamente');			
+		           $("#id_escuela").html(data);		
+		        },																										
+		        error : function(jqXHR, status, error) {
+		           alert('Disculpe, existió un problema');
+		        },
+		        complete : function(jqXHR, status) {
+		           //alert('Petición realizada');
+		        }							
+    		});						
+		},				
+								
+		getLicenciaturas:function()
+		{					
+			$("#id_licenciatura").attr("disabled",false); 
+
+			var url  = autorizacion.url+'/AutorizarLicenciaturas/Autorizar/getLicenciaturas';								
+			var data = "id_escuela="+$(this).val();	
+																									
+			$.ajax({												
+		        url : url,					
+		        method:'post',
+		        type:'html',																	
+		    	data:data,				     								
+		        success : function(data) {
+		           //alert('Petición realizada satisfactoriamente');			
+		           $("#id_licenciatura").html(data);		
+		        },																												
+		        error : function(jqXHR, status, error) {
+		           alert('Disculpe, existió un problema');
+		        },
+		        complete : function(jqXHR, status) {
+		           //alert('Petición realizada');
+		        }							
+    		});						
+		},												
+
+		getEspecialidad:function()
+		{	
+			$("#id_especialidad").attr("disabled",false); 
+
+			var url  = autorizacion.url+'/AutorizarLicenciaturas/Autorizar/getEspecialidad';								
+			var data = "id_licenciatura="+$(this).val()	;	
+																																																		
+			$.ajax({												
+		        url : url,					
+		        method:'post',
+		        type:'html',																	
+		    	data:data,				     								
+		        success : function(data) {
+		           //alert('Petición realizada satisfactoriamente');			
+		           $("#id_especialidad").html(data);		
+		        },																																		
+		        error : function(jqXHR, status, error) {
+		           alert('Disculpe, existió un problema');
+		        },
+		        complete : function(jqXHR, status) {
+		           //alert('Petición realizada');
+		        }							
+    		});						
+		},		
+
+		getPeriodos:function()
+		{										
+
+			$("#periodo2").attr("disabled",false); 																																																									
+			var url  = autorizacion.url+'/AutorizarLicenciaturas/Autorizar/getPeriodos';								
+			var data = "periodo1="+$("#periodo1 option:selected").text(); 
+																																						
+			$.ajax({												
+		        url : url,					
+		        method:'post',
+		        type:'html',																	
+		    	data:data,								     								
+		        success : function(data) {
+		           //alert('Petición realizada satisfactoriamente');			
+		           $("#periodo2").html(data);		
+		        },																																
+		        error : function(jqXHR, status, error) {
+		           alert('Disculpe, existió un problema');
+		        },
+		        complete : function(jqXHR, status) {
+		           //alert('Petición realizada');
+		        }							
+    		});						
+		}		
+	}								
+	$(document).ready(autorizacion.ready);
+</script>						

@@ -1,0 +1,19 @@
+<?php 
+
+echo $this->val;				
+
+$form = $this->form;   		       		  
+$form->prepare();  
+echo $this->form()->openTag($form);						
+//echo $this->formLabel($form->get('text'));
+echo $this->formElement($form->get('text'));
+echo $this->formElementErrors($form->get('text'));
+//echo $this->formLabel($form->get('number'));
+echo $this->formElement($form->get('number'));
+echo $this->formElementErrors($form->get('number'));
+		
+echo $this->formElement($form->get('phone'));			
+echo $this->formElementErrors($form->get('phone'));
+				
+$submit = $form->get('enviar');
+echo $this->formSubmit($submit);				
